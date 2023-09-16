@@ -1,6 +1,5 @@
 import os
 import psycopg2
-from datetime import datetime
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -23,8 +22,7 @@ def connect():
 def insert_despesa(valor, categoria_id, usuario_id):
     conn = connect()
     cur = conn.cursor()
-    data_atual = datetime.now().strftime('%Y-%m-%d')
-    cur.execute("INSERT INTO despesas (valor, data, categoria_id, usuario_id) VALUES (%s, %s, %s, %s)", (valor, data_atual, categoria_id, usuario_id))
+    cur.execute("INSERT INTO despesas (valor, categoria_id, usuario_id) VALUES (%s, %s, %s)", (valor, categoria_id, usuario_id))
     conn.commit()
     cur.close()
     conn.close()
