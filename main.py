@@ -1,24 +1,29 @@
+from dotenv import load_dotenv
+import os
 from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters import Text
-from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types import ParseMode
 from aiogram.utils import executor
-from actions import despesas
-from dotenv import load_dotenv
+from aiogram.types import ParseMode
+from aiogram.dispatcher.filters import Text
+from menus import teclado_principal  
+from actions import despesas  
+from actions.despesas import Despesa  
 import logging
-import os
 
-# Initialize bot and dispatcher
 load_dotenv()
-API_TOKEN = os.getenv("API_TOKEN")
+API_TOKEN = os.getenv('API_TOKEN')
 
 logging.basicConfig(level=logging.INFO)
 
-bot = Bot(token=API_TOKEN)
 storage = MemoryStorage()
+bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot, storage=storage)
+
+@dp.message_handler(commands=['start'])
+async def cmd_start(message: types.Message):
+    markup = teclado_principal()
+    await message.reply("Olá! Como posso ajudá-lo hoje?", reply_markup=markup)
 
 @dp.callback_query_handler(lambda c: c.data == 'despesas')
 async def process_callback_despesas(callback_query: types.CallbackQuery):
@@ -26,15 +31,17 @@ async def process_callback_despesas(callback_query: types.CallbackQuery):
     state = FSMContext(dp.storage, callback_query.from_user.id, callback_query.message.chat.id)
     await despesas.handle(callback_query, state)
 
-@dp.message_handler(state=despesas.Despesa.descricao)
+
+
+@dp.message_handler(state=Despesa.descricao)
 async def process_descricao(message: types.Message, state: FSMContext):
     await despesas.descricao_despesa(message, state)
 
-@dp.message_handler(state=despesas.Despesa.valor)
+@dp.message_handler(state=Despesa.valor)
 async def process_valor(message: types.Message, state: FSMContext):
     await despesas.valor_despesa(message, state)
 
-@dp.message_handler(state=despesas.Despesa.categoria)
+@dp.message_handler(state=Despesa.categoria)
 async def process_categoria(message: types.Message, state: FSMContext):
     await despesas.categoria_despesa(message, state)
 
