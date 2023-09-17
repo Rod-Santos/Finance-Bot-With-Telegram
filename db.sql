@@ -39,3 +39,5 @@ CREATE TABLE receitas (
     categoria_id INTEGER REFERENCES categorias(id),
     usuario_id BIGINT REFERENCES usuarios(id)
 );
+
+ALTER TABLE usuarios ALTER COLUMN nome DROP NOT NULL;

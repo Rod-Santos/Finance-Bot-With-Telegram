@@ -10,6 +10,7 @@ from menus import teclado_principal
 from actions import despesas  
 from actions.despesas import Despesa  
 import logging
+from database import insert_user  # Importe a função aqui
 
 load_dotenv()
 API_TOKEN = os.getenv('API_TOKEN')
@@ -20,10 +21,20 @@ storage = MemoryStorage()
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot, storage=storage)
 
+
+
+
 @dp.message_handler(commands=['start'])
-async def cmd_start(message: types.Message):
-    markup = teclado_principal()
+async def handle_start(message: types.Message):
+    user_id = message.from_user.id
+    user_name = message.from_user.full_name  # Obtém o nome completo do usuário
+    insert_user(user_id, user_name)  # Passe o nome como um segundo argumento
+    
+    markup = teclado_principal()  # Chamada da função para obter o InlineKeyboardMarkup
+    
     await message.reply("Olá! Como posso ajudá-lo hoje?", reply_markup=markup)
+
+
 
 @dp.callback_query_handler(lambda c: c.data == 'despesas')
 async def process_callback_despesas(callback_query: types.CallbackQuery):

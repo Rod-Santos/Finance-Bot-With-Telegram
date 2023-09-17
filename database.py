@@ -20,6 +20,18 @@ def connect():
         password=DB_PASSWORD
     )
 
+def insert_user(user_id, user_name=None):
+    conn = connect()
+    cur = conn.cursor()
+    if user_name:
+        cur.execute("INSERT INTO usuarios (id, nome) VALUES (%s, %s) ON CONFLICT (id) DO NOTHING", (user_id, user_name))
+    else:
+        cur.execute("INSERT INTO usuarios (id) VALUES (%s) ON CONFLICT (id) DO NOTHING", (user_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
 def insert_despesa(valor, categoria_id, usuario_id):
     conn = connect()
     cur = conn.cursor()

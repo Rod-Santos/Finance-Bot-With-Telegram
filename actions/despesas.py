@@ -2,6 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from database import insert_despesa, get_all_categories
+from database import insert_user
 
 class Despesa(StatesGroup):
     descricao = State()
@@ -30,6 +31,11 @@ async def valor_despesa(message: types.Message, state: FSMContext):
     await Despesa.categoria.set()
 
 async def categoria_despesa(message: types.Message, state: FSMContext):
+    # Certifique-se de que o usuário exista no banco de dados
+    user_id = message.from_user.id
+    insert_user(user_id)
+
+    # Processa a categoria da despesa
     categoria_id = int(message.text)
     data = await state.get_data()
     valor = data.get("valor")
